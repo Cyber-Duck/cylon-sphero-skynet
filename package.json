@@ -1,0 +1,9 @@
+{
+  "name": "cylon-sphero-skynet",
+  "dependencies": {
+    "cylon": "^0.19.1",
+    "cylon-skynet": "^0.8.0",
+    "cylon-sphero": "^0.15.0"
+  },
+  "devDependencies": {}
+}
