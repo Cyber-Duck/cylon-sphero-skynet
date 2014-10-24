@@ -10,10 +10,8 @@ var Cylon = require('cylon');
 
 // Update Bluetooth ports with real values, add or remove robots 
 var bots = [
-  { port: '/dev/rfcomm0', name: 'Lion1' },
-  { port: '/dev/rfcomm1', name: 'Lion2' },
-  { port: '/dev/rfcomm2', name: 'Lion3' },
-  { port: '/dev/rfcomm3', name: 'Lion4' }
+  { port: '/dev/cu.Sphero-BYO-AMP-SPP', name: 'Lion1' },
+  { port: '/dev/cu.Sphero-YRB-AMP-SPP', name: 'Lion2' }
 ];
 
 // Lion colors
@@ -28,8 +26,8 @@ var LionRobot = (function() {
   function LionRobot() {}
 
   LionRobot.prototype.connection = [
-  	{ name: 'Sphero', adaptor: 'sphero' },
-  	{ name: 'skynet', adaptor: 'skynet', uuid: "eee99e91-58aa-11e4-a406-e361fc970baa", token: "3vlrauvp274d9529ppan51ag3hr27qfr" };
+  	{ port: '', name: 'Lion1', adaptor: 'sphero' },
+  	{ name: 'skynet', adaptor: 'skynet', uuid: "eee99e91-58aa-11e4-a406-e361fc970baa", token: "3vlrauvp274d9529ppan51ag3hr27qfr" }
   ];
   
   LionRobot.prototype.device = { name: 'sphero', driver: 'sphero' };
@@ -41,27 +39,34 @@ var LionRobot = (function() {
   };
 
   LionRobot.prototype.move = function() {
-    this.sphero.roll(lion_speed, this.lion_direction);
+
+    var _this = this;
+
+    _this.sphero.roll(lion_speed, _this.lion_direction);
+    console.log(_this.lion_direction);
   };
 
   // Main Robot logic
   LionRobot.prototype.work = function(me) {
+
+    var _this = this;
+
     me.born();
 
     me.sphero.on('collision', function() {
       // On collision, change color
-      this.sphero.setRGB(lion_color_impact);
-      this.sphero.setRGB(lion_color);
+      _this.sphero.setRGB(lion_color_impact);
+      _this.sphero.setRGB(lion_color);
     });
 	
 	every((5).second(), function() {
       // Generate a randon direction 0-360
-      this.lion_direction = Math.floor(Math.random() * 360);
-      console.log('Lion direction: '+lion_direction);
+      _this.lion_direction = Math.floor(Math.random() * 360);
+      console.log('Lion direction: '+_this.lion_direction);
       // Post direction to Skynet chatroom
-      my.skynet.message({
+      me.skynet.message({
 		  "devices": "eee99e91-58aa-11e4-a406-e361fc970baa",
-		  "payload": {"direction": this.lion_direction}
+		  "payload": {"direction": _this.lion_direction}
 	  });
 	  // Move
       me.move();
@@ -77,7 +82,7 @@ for (var i = 0; i < bots.length; i++) {
   var bot = bots[i];
   var robot = new LionRobot;
 
-  robot.connection.port = bot.port;
+  robot.connection[0].port = bot.port;
   robot.name = bot.name;
 
   Cylon.robot(robot);
